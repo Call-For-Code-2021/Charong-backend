@@ -5,3 +5,11 @@ from DB import db_connect
 from ibmcloudant.cloudant_v1 import AllDocsQuery, Document, CloudantV1
 import re
 
+Shop = Namespace('Shop')
+
+@Shop.route('/register')
+class Register():
+    def post(self):
+        information = {
+
+        }

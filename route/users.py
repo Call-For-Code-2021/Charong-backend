@@ -16,7 +16,7 @@ service = db_connect.Db_coneection().get_service()
 
 @User.route('/login')
 class Login(Resource):
-    def post(self):
+    def post(self): #login function
         information = {
             "id": request.json.get("id"),
             "password": request.json.get("password")
@@ -26,7 +26,7 @@ class Login(Resource):
             if information[i] is None:
                 result = json.dumps({"message": "Client error"}, ensure_ascii=False, indent=4)
                 res = make_response(result)
-                return {"message": "Client error"}, 400
+                return {"message": "Bad request"}, 400
         try:
             #db 조회
             response = service.get_document(
@@ -36,13 +36,11 @@ class Login(Resource):
             # pw 검증
             if bcrypt.checkpw(information['password'].encode('utf-8'), response['password'].encode('utf-8')) is True:
                 jwt_token = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': information['id']}, "qwer@1234", 'HS256')
-                result = json.dumps({"messsage" : jwt_token}, ensure_ascii=False, indent=4)
-                res = make_response(result)
                 return {"jwt_token": jwt_token}, 200
             else :
                 return {"messsage": "Unauthorized"}, 401
         except Exception as e:
-            return {"message": "Server error"}, 400
+            return {"message": " Internal Server Error"}, 500
 
     def get(self): #jwt 에러 찾기
         information = {
@@ -50,18 +48,19 @@ class Login(Resource):
         }
         for i in information:
             if information[i] == None:
-                return {"message" : "Server error"}, 400
+                return {"message": "Internal Server Error"}, 500
         try:
             decoded = jwt.decode(information["jwt_token"], "qwer@1234", 'HS256')
             decoded["jwt_token"] = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': decoded['id']}, "qwer@1234", 'HS256')
             return decoded, 200
-        except jwt.ExpiredSignatureError :
-            return {"message" : "Unathorized"}, 401
-        except jwt.InvalidTokenError :
-            return {"message" : "Unauthorized"}, 401
+        except jwt.ExpiredSignatureError:
+
+            return {"message": "Unathorized"}, 401
+        except jwt.InvalidTokenError:
+            return {"message": "Unauthorized"}, 401
         except Exception as e:
             print(e)
-            return {"message" : "Server error"}, 400
+            return {"message": " Internal Server Error"}, 500
 
 @User.route('/join')
 class Join(Resource):
@@ -74,14 +73,14 @@ class Join(Resource):
         }
         print(information)
         if information is None:
-            return {"message" : "Client error"}
+            return {"message" : "Bad request"}
         try:
             response = service.get_document(db='users', doc_id=f"cfc:{information['id']}")
         except ibm_cloud_sdk_core.api_exception.ApiException as ibm:
-            return {"message" : "Okay"}, 200
+            return {"message": "Okay"}, 200
         except Exception as e:
-            return {"message" : "Server error"}, 400
-        return {"message" : "Can not join"}, 401
+            return {"message": " Internal Server Error"}, 500
+        return {"message": "Unauthorized"}, 401
 
     def post(self):
         # body datas
@@ -128,12 +127,12 @@ class Join(Resource):
 class Delete(Resource):
     def post(self):
         information = {
-            "id" : request.json.get("id"),
-            "password" : request.json.get("password")
+            "id": request.json.get("id"),
+            "password": request.json.get("password")
         }
         for i in information:
             if information[i] is None:
-                return {"message": "Client error"}, 400
+                return {"message": "Bad request"}, 400
         try:
             response = service.get_document(db='users', doc_id=f"cfc:{information['id']}").get_result()
         except ibm_cloud_sdk_core.api_exception.ApiException as ibm:
@@ -149,6 +148,6 @@ class Delete(Resource):
                 return response, 200
             except Exception as e:
                 print(e)
-                return {"message": "Server error"}, 400
+                return {"message": "Client error"}, 400
         else:
             return {"password": "Unauthorize"}, 401
