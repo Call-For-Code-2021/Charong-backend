@@ -60,7 +60,7 @@ class Login(Resource):
             return {"message": "Unauthorized"}, 401
         except Exception as e:
             print(e)
-            return {"message": " Internal Server Error"}, 500
+            return {"message": "Internal Server Error"}, 500
 
 @User.route('/join')
 class Join(Resource):
@@ -72,14 +72,14 @@ class Join(Resource):
             "id" : request.args.get('id')
         }
         print(information)
-        if information is None:
+        if information['id'] is None:
             return {"message" : "Bad request"}
         try:
             response = service.get_document(db='users', doc_id=f"cfc:{information['id']}")
         except ibm_cloud_sdk_core.api_exception.ApiException as ibm:
             return {"message": "Okay"}, 200
         except Exception as e:
-            return {"message": " Internal Server Error"}, 500
+            return {"message": "Internal Server Error"}, 500
         return {"message": "Unauthorized"}, 401
 
     def post(self):
@@ -92,19 +92,19 @@ class Join(Resource):
         }
         for i in information:
             if information[i] is None:
-                return {"message": "Client error"}, 400
-
+                return {"message": "Bad request"}, 400
+        print(information['id'])
         password_re = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$')
-        id_re = re.compile(r'^[A-za-z]{5,15}')
+        id_re = re.compile(r'^[a-z0-9]{4,20}$')
 
         if password_re.match(information['password']) is None:
             '''
             cheking Regular expressio of password
             '''
-            return {"message": "Client error"}, 400
+            return {"message": "Bad request"}, 400
 
         if id_re.match(information['id']) is None:
-            return {"message": "Client error"}, 400
+            return {"message": "Bad request"}, 400
 
         try:
             # encoding password
@@ -118,9 +118,9 @@ class Join(Resource):
                 type="normal"
             )
             response = service.post_document(db='users', document=products_doc).get_result()
-        except :
-
-            return {"message": "server error"}, 400
+        except Exception as e:
+            print(e)
+            return {"message": "Internal Server Error"}, 500
         return response, 200
 
 @User.route("/delete")
@@ -148,6 +148,6 @@ class Delete(Resource):
                 return response, 200
             except Exception as e:
                 print(e)
-                return {"message": "Client error"}, 400
+                return {"message": "Internal Server Error"}, 500
         else:
             return {"password": "Unauthorize"}, 401

@@ -1,10 +1,11 @@
 from flask import Flask
 from flask_restx import Resource, Api
-from route import users
+from route import users, shop
 from DB import db_connect
 app = Flask(__name__)
 api = Api(app)
 
+api.add_namespace(shop.Shops, "/buy")
 api.add_namespace(users.User, "/auth")
 
 # Press the green button in the gutter to run the script.
