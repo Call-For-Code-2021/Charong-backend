@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restx import Resource, Api
 from route import users, shop
 from DB import db_connect
+import os
 app = Flask(__name__)
 api = Api(app)
 

@@ -5,6 +5,7 @@ import os
 #getting dotenv file
 load_dotenv(verbose=True)
 class Db_coneection():
+
     authenticator = IAMAuthenticator(os.getenv('IBM_CLOUDANT_API_KEY'))
     service = CloudantV1(authenticator=authenticator)
     def __init__(self):

@@ -39,11 +39,62 @@ class Shop(Resource):
             return {'message': "Internal Server Error"}, 500
 
     def get(self):
-        response = service.post_find(db='users', selector={
-            'name': {
-                '$eq': "afwe"
-            }
+        information = {
+            id: request.args.get("id")
         }
-                                     ).get_result()
-        print(response)
-        return {"message": "true"}, 200
+        if information['id'] is None:
+            return {'message': "Bad request"}, 400
+        try:
+            response = service.post_find(db='shops', selector={
+                    '_id': {
+                        '$eq': information['id']
+                    }
+                }
+            ).get_result()
+            if response['bookmark'] == 'nil':
+                return {'message': 'Data not found'}, 404
+
+        except Exception as e:
+            return {'message': 'Internal Server Error'}, 500
+
+        return response['docs'][0], 200
+@Shops.route('/map')
+class Map(Resource):
+
+    def get(self):
+        information = {
+            'x1': request.args.get('x1'),
+            'x2': request.args.get('x2'),
+            'y1': request.args.get('y1'),
+            'y2': request.args.get('y2')
+        }
+        for i in information:
+            if information[i] is None:
+                return {'message': "Bad request"}, 400
+        
+        try:
+            response = service.post_find(db='shops', selector={
+                '$and': [
+                    {
+                        'x1': {'$gte': int(information['x1']) }
+
+                    },
+                    {
+                        'x2': {'$lte': int(information['x2'])}
+                    },
+                    {
+                        'y1': {'$gte': int(information['x1'])}
+
+                    },
+                    {
+                        'y2': {'$lte': int(information['x2'])}
+                    }
+                ]
+            }).get_result()
+            if response['bookmark'] == 'nil':
+                return {'message': 'Data not found'}, 404
+
+        except Exception as e:
+            return {'message': 'Internal Server Error'}, 500
+
+        return response['docs'][0], 200
