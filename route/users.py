@@ -24,8 +24,6 @@ class Login(Resource):
 
         for i in information:
             if information[i] is None:
-                result = json.dumps({"message": "Client error"}, ensure_ascii=False, indent=4)
-                res = make_response(result)
                 return {"message": "Bad request"}, 400
         try:
             #db 조회
@@ -37,7 +35,7 @@ class Login(Resource):
             if bcrypt.checkpw(information['password'].encode('utf-8'), response['password'].encode('utf-8')) is True:
                 jwt_token = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': information['id']}, "qwer@1234", 'HS256')
                 return {"jwt_token": jwt_token}, 200
-            else :
+            else:
                 return {"messsage": "Unauthorized"}, 401
         except Exception as e:
             return {"message": " Internal Server Error"}, 500
@@ -47,14 +45,13 @@ class Login(Resource):
             "jwt_token": request.args.get("jwt_token")
         }
         for i in information:
-            if information[i] == None:
-                return {"message": "Internal Server Error"}, 500
+            if information[i] is None:
+                return {"message": "Bad request"}, 400
         try:
             decoded = jwt.decode(information["jwt_token"], "qwer@1234", 'HS256')
             decoded["jwt_token"] = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': decoded['id']}, "qwer@1234", 'HS256')
             return decoded, 200
         except jwt.ExpiredSignatureError:
-
             return {"message": "Unathorized"}, 401
         except jwt.InvalidTokenError:
             return {"message": "Unauthorized"}, 401
@@ -69,11 +66,11 @@ class Join(Resource):
     '''
     def get(self):
         information = {
-            "id" : request.args.get('id')
+            "id": request.args.get('id')
         }
         print(information)
         if information['id'] is None:
-            return {"message" : "Bad request"}
+            return {"message": "Bad request"}
         try:
             response = service.get_document(db='users', doc_id=f"cfc:{information['id']}")
         except ibm_cloud_sdk_core.api_exception.ApiException as ibm:
@@ -93,7 +90,7 @@ class Join(Resource):
         for i in information:
             if information[i] is None:
                 return {"message": "Bad request"}, 400
-        print(information['id'])
+
         password_re = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$')
         id_re = re.compile(r'^[a-z0-9]{4,20}$')
 
@@ -144,7 +141,6 @@ class Delete(Resource):
                     doc_id=f'cfc:{information["id"]}',
                     rev=response['_rev']
                 ).get_result()
-                print(response)
                 return response, 200
             except Exception as e:
                 print(e)
