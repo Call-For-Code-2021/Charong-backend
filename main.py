@@ -13,6 +13,8 @@ api.add_namespace(dishes.Dish, '/dish')
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     db_connect.Db_coneection()
-    app.run(debug=True, port=os.environ.get('PORT'))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+    # app.run(debug=True, port=os.environ.get('PORT'))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
