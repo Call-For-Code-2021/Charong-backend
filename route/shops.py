@@ -18,83 +18,173 @@ class Shop(Resource):
             'shop_num': request.json.get('shop_num'),
             'user_id': request.json.get('user_id'),
             'x': request.json.get('x'),
-            'y': request.json.get('y')
+            'y': request.json.get('y'),
+            'photo_id': request.json.get('photo_id'),
+            'dish_type': request.json.get('dish_type')
         }
         for i in information:
             if information[i] is None:
                 return {'message': "Bad request"}, 400
         try:
+            # user_doc = Document(
+            #     id=f"cfc:{information['user_id']}",
+            #     type='shop'
+            # )
+            print(information)
             products_doc = Document(
-                id=uuid.uuid1(),
+                id=f"cfc:{uuid.uuid1()}",
                 shop=information['shop_name'],
                 shop_num=information['shop_num'],
                 user_id=information['user_id'],
                 x=information['x'],
-                y=information['y']
+                y=information['y'],
+                photo_id=information['photo_id']
             )
-
             service.post_document(db='shops', document=products_doc).get_result()
+            # service.put_document(db='users', doc_id=f"cfc:{information['user_id']}", document=user_doc).get_result()
+
             return {'message': "OK"}, 200
-        except Exception:
+        except Exception as e:
+            print(e)
             return {'message': "Internal Server Error"}, 500
 
     def get(self):
+        '''
+        shop 검색색        :return:
+        '''
         information = {
-            id: request.args.get("id")
+            "shop_id": request.args.get("shop_id")
         }
         if information['id'] is None:
             return {'message': "Bad request"}, 400
         try:
             response = service.post_find(db='shops', selector={
-                    '_id': {
-                        '$eq': information['id']
-                    }
+                '_id': {
+                    '$eq': information['id']
                 }
-            ).get_result()
+            }).get_result()
+
+            rating = service.post_find(db='ratings', selector={
+                'shop_id': {
+                    '$eq': information['shop_id']
+                }
+            }).get_result()
+
             if response['bookmark'] == 'nil':
                 return {'message': 'Data not found'}, 404
 
+            if rating['bookmark'] == 'nil':
+                response['docs'][0]['rating'] = None
+
+            else:
+                #평점 계산하기 위한 변수
+                count = 0
+                # 평점 갯수 카운트 하기 위한 변수
+                c = 0
+                for score in rating['docs']:
+                    count += score['rating']
+                    c += 1
+                avg_rating = count / c
+                response['docs'][0]['rating'] = avg_rating
+            return response['docs'][0], 200
         except Exception as e:
             return {'message': 'Internal Server Error'}, 500
 
-        return response['docs'][0], 200
+
+
+
 @Shops.route('/map')
 class Map(Resource):
+    def post(self):
+        information = {
+            'shop_id': request.json.get('shop_id'),
+            'user_id': request.json.get('user_id')
+        }
+        try:
+            response = service.post_find(db='shops', selector={
+                '$and': [
+                    {
+                        "x": {
+                            "$gte": 300
+                        },
+                        "x": {
+                            "$lte": 1000
+                        }
+                    }
+                ]
+            }).get_result()
+            print(response)
+        except Exception as e:
+
+            print(e)
 
     def get(self):
         information = {
             'x1': request.args.get('x1'),
             'x2': request.args.get('x2'),
             'y1': request.args.get('y1'),
-            'y2': request.args.get('y2')
+            'y2': request.args.get('y2'),
+            'from': request.args.get('from'),
+            'limit': request.args.get("limit")
         }
         for i in information:
             if information[i] is None:
                 return {'message': "Bad request"}, 400
-        
+
         try:
+            print(information)
             response = service.post_find(db='shops', selector={
                 '$and': [
                     {
-                        'x1': {'$gte': int(information['x1']) }
+                        'x': {'$gte': int(information['x1'])}
 
                     },
                     {
-                        'x2': {'$lte': int(information['x2'])}
+                        'x': {'$lte': int(information['x2'])}
                     },
                     {
-                        'y1': {'$gte': int(information['x1'])}
+                        'y': {'$gte': int(information['y1'])}
 
                     },
                     {
-                        'y2': {'$lte': int(information['x2'])}
+                        'y': {'$lte': int(information['y2'])}
                     }
                 ]
-            }).get_result()
+            }, skip=information['from'], limit=information['limit']).get_result()
+            print(response)
+
             if response['bookmark'] == 'nil':
                 return {'message': 'Data not found'}, 404
-
+            data = {}
+            for i in response['docs']:
+                data[i['_id']] = i
+            return data, 200
         except Exception as e:
+            print(e)
             return {'message': 'Internal Server Error'}, 500
 
-        return response['docs'][0], 200
+        # return response['docs'][0], 200
+
+
+@Shops.route('/rating')
+class Rating(Resource):
+    def post(self):
+        information = {
+            'shop_id': request.json.get('shop_id'),
+            'user_id': request.json.get('user_id'),
+            'rating': request.json.get('rating')
+        }
+        for i in information:
+            if information[i] is None:
+                return {'message': 'Bad request'}, 400
+        try:
+            products_doc = Document(
+                id=f"cfc:{uuid.uuid1()}",
+                shop_id=information['shop_id'],
+                user_id=information['user_id'],
+                rating=information['rating']
+            )
+            service.post_document(db='ratings', document=products_doc).get_result()
+            return {'message': 'success'}
+        except Exception:
+            return {'message': "Internal Server Error"}
