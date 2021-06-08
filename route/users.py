@@ -9,8 +9,8 @@ from ibmcloudant.cloudant_v1 import AllDocsQuery, Document, CloudantV1
 import re
 import jwt
 import datetime
-User = Namespace("User")
 
+User = Namespace("User")
 service = db_connect.Db_coneection().get_service()
 
 @User.route('/get_user')
@@ -30,6 +30,7 @@ class User(Resource):
             return {"name": user['docs'][0]['name'], "address": user['docs'][0]['address']}, 200
         except Exception as e:
             return {"Internal server error"}, 500
+
 
 @User.route('/login')
 class Login(Resource):

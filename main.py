@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_restx import Resource, Api
-from route import users, shops, env_news
+from route import shops, users, env_news
 from DB import db_connect
 import os
 from flask_cors import CORS, cross_origin
