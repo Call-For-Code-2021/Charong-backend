@@ -33,7 +33,7 @@ class User(Resource):
 
 
 @User.route('/login')
-class Login(Resource):
+class Sign(Resource):
     def post(self): #login function
         information = {
             "id": request.json.get("id"),
