@@ -2,18 +2,16 @@ import ibm_cloud_sdk_core
 from flask import Flask, request, jsonify
 from flask_restx import Resource, Api, Namespace
 import bcrypt
-import json
-from flask import make_response
 from DB import db_connect
 from ibmcloudant.cloudant_v1 import AllDocsQuery, Document, CloudantV1
 import re
 import jwt
 import datetime
 
-User = Namespace("User")
+Auth = Namespace("User")
 service = db_connect.Db_coneection().get_service()
 
-@User.route('/get_user')
+@Auth.route('/get_user')
 class User(Resource):
     def get(self):
         id = request.json.get("id")
@@ -32,7 +30,7 @@ class User(Resource):
             return {"Internal server error"}, 500
 
 
-#@User.route('/login')
+@Auth.route('/login')
 class Sign(Resource):
     def post(self): #login function
         information = {
@@ -77,7 +75,7 @@ class Sign(Resource):
             print(e)
             return {"message": "Internal Server Error"}, 500
 
-@User.route('/join')
+@Auth.route('/join')
 class Join(Resource):
     '''
     joining system
@@ -138,7 +136,7 @@ class Join(Resource):
             return {"message": "Internal Server Error"}, 500
         return response, 200
 
-@User.route("/delete")
+@Auth.route("/delete")
 class Delete(Resource):
     def post(self):
         information = {

@@ -8,9 +8,9 @@ Dish.route('/register_dish')
 import uuid
 service = db_connect.Db_coneection().get_service()
 
-News= Namespace('News')
+News = Namespace('News')
 @News.route("post")
-class News(Resource):
+class Post(Resource):
     def post(self):
         information = {
             "title": request.args.json('title'),

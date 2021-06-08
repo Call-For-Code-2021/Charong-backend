@@ -10,7 +10,7 @@ app = Flask(__name__)
 api = Api(app)
 
 api.add_namespace(shops.Shops, "/buy")
-api.add_namespace(users.User, "/auth")
+api.add_namespace(users.Auth, "/auth")
 api.add_namespace(env_news.News, '/news')
 
 CORS(app)
