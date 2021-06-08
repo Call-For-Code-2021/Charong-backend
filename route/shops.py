@@ -26,11 +26,6 @@ class Shop(Resource):
             if information[i] is None:
                 return {'message': "Bad request"}, 400
         try:
-            # user_doc = Document(
-            #     id=f"cfc:{information['user_id']}",
-            #     type='shop'
-            # )
-            print(information)
             products_doc = Document(
                 id=f"cfc:{uuid.uuid1()}",
                 shop=information['shop_name'],
@@ -50,25 +45,25 @@ class Shop(Resource):
 
     def get(self):
         '''
-        shop 검색색        :return:
+        shop 검색       :return:
         '''
         information = {
             "shop_id": request.args.get("shop_id")
         }
         if information['id'] is None:
             return {'message': "Bad request"}, 400
+        response = service.post_find(db='shops', selector={
+            '_id': {
+                '$eq': information['id']
+            }
+        }).get_result()
         try:
-            response = service.post_find(db='shops', selector={
-                '_id': {
-                    '$eq': information['id']
-                }
-            }).get_result()
-
             rating = service.post_find(db='ratings', selector={
                 'shop_id': {
                     '$eq': information['shop_id']
                 }
             }).get_result()
+
 
             if response['bookmark'] == 'nil':
                 return {'message': 'Data not found'}, 404

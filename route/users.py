@@ -13,6 +13,23 @@ User = Namespace("User")
 
 service = db_connect.Db_coneection().get_service()
 
+@User.route('/get_user')
+class User(Resource):
+    def get(self):
+        id = request.json.get("id")
+        if id is None:
+            return {"message": "Bad request"}, 400
+        try:
+            user = service.post_find(db='env_news', selector={
+                'id': {
+                    '$eq': id
+                }
+            }).get_result()
+            if user['bookmark'] == 'nil':
+                return {'message': 'Data not found'}, 404
+            return {"name": user['docs'][0]['name'], "address": user['docs'][0]['address']}, 200
+        except Exception as e:
+            return {"Internal server error"}, 500
 
 @User.route('/login')
 class Login(Resource):

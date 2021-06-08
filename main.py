@@ -1,14 +1,17 @@
 from flask import Flask
 from flask_restx import Resource, Api
-from route import users, shops, dishes
+from route import users, shops, env_news
 from DB import db_connect
 import os
+from flask_cors import CORS, cross_origin
+
+
 app = Flask(__name__)
 api = Api(app)
-
+CORS(app)
 api.add_namespace(shops.Shops, "/buy")
 api.add_namespace(users.User, "/auth")
-api.add_namespace(dishes.Dish, '/dish')
+api.add_namespace(env_news.News, '/news')
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
