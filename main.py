@@ -8,11 +8,12 @@ from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app)
+
 api.add_namespace(shops.Shops, "/buy")
 api.add_namespace(users.User, "/auth")
 api.add_namespace(env_news.News, '/news')
 
+CORS(app)
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     db_connect.Db_coneection()

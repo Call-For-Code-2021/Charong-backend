@@ -32,7 +32,7 @@ class User(Resource):
             return {"Internal server error"}, 500
 
 
-@User.route('/login')
+#@User.route('/login')
 class Sign(Resource):
     def post(self): #login function
         information = {
