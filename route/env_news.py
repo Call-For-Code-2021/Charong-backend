@@ -13,10 +13,10 @@ News = Namespace('News')
 class Post(Resource):
     def post(self):
         information = {
-            "title": request.args.json('title'),
-            "content": request.args.json('content'),
-            "writer": request.args.json('writer'),
-            "date": request.args.json('date')
+            "title": request.json.get('title'),
+            "content": request.json.get('content'),
+            "writer": request.json.get('writer'),
+            "date": request.json.get('date')
         }
         for i in information:
             if information[i] is None:

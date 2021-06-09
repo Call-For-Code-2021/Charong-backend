@@ -14,7 +14,8 @@ service = db_connect.Db_coneection().get_service()
 @Auth.route('/get_user')
 class User(Resource):
     def get(self):
-        id = request.json.get("id")
+        id = request.args.get("id")
+        print(id)
         if id is None:
             return {"message": "Bad request"}, 400
         try:
@@ -56,7 +57,10 @@ class Sign(Resource):
         except Exception as e:
             return {"message": " Internal Server Error"}, 500
 
-    def get(self): #jwt 에러 찾기
+    def get(self):
+        '''
+        jwt 토큰 확인인        :return:
+        '''
         information = {
             "jwt_token": request.args.get("jwt_token")
         }
@@ -109,7 +113,8 @@ class Join(Resource):
 
         password_re = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$')
         id_re = re.compile(r'^[a-z0-9]{4,20}$')
-
+        print(information['id'])
+        print(id_re.match(information['id']))
         if password_re.match(information['password']) is None:
             '''
             cheking Regular expressio of password
