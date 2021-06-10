@@ -7,7 +7,7 @@ from ibmcloudant.cloudant_v1 import AllDocsQuery, Document, CloudantV1
 import re
 import jwt
 import datetime
-
+import os
 Auth = Namespace("User")
 service = db_connect.Db_coneection().get_service()
 
@@ -44,18 +44,21 @@ class Sign(Resource):
                 return {"message": "Bad request"}, 400
         try:
             #db 조회
-            response = service.get_document(
-                db='users',
-                doc_id=f"cfc:{information['id']}"
-            ).get_result()
+            response = service.post_find(db='ratings', selector={
+                '_id': {
+                    '$eq': information['id']
+                }
+            }).get_result()
+            if response['bookmark'] == 'nil':
+                return {'message': 'Unauthorized'}, 401
             # pw 검증
-            if bcrypt.checkpw(information['password'].encode('utf-8'), response['password'].encode('utf-8')) is True:
-                jwt_token = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': information['id']}, "qwer@1234", 'HS256')
+            if bcrypt.checkpw(information['password'].encode('utf-8'), response['docs'][0]['password'].encode('utf-8')) is True:
+                jwt_token = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': information['id']}, os.getenv('JWT_TOKEN'), 'HS256')
                 return {"jwt_token": jwt_token}, 200
             else:
                 return {"messsage": "Unauthorized"}, 401
         except Exception as e:
-            return {"message": " Internal Server Error"}, 500
+            return {"message": "Internal server error"}, 500
 
     def get(self):
         '''
