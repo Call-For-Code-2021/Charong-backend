@@ -54,7 +54,7 @@ class Shop(Resource):
             return {'message': "Bad request"}, 400
         response = service.post_find(db='shops', selector={
             '_id': {
-                '$eq': information['id']
+                '$eq': f"cfc:{information['id']}"
             }
         }).get_result()
         try:

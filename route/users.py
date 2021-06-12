@@ -44,11 +44,13 @@ class Sign(Resource):
                 return {"message": "Bad request"}, 400
         try:
             #db 조회
-            response = service.post_find(db='ratings', selector={
+
+            response = service.post_find(db='users', selector={
                 '_id': {
-                    '$eq': information['id']
+                    '$eq': f"cfc:{information['id']}"
                 }
             }).get_result()
+            print(response)
             if response['bookmark'] == 'nil':
                 return {'message': 'Unauthorized'}, 401
             # pw 검증
@@ -139,8 +141,10 @@ class Join(Resource):
                 type="normal"
             )
             response = service.post_document(db='users', document=products_doc).get_result()
+        except ibm_cloud_sdk_core.api_exception.ApiException as ibm_e:
+            return {"message": "Unauthorized"}, 401
         except Exception as e:
-            print(e)
+            print(type(e))
             return {"message": "Internal Server Error"}, 500
         return response, 200
 
