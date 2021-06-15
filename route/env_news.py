@@ -9,7 +9,7 @@ import uuid
 service = db_connect.Db_coneection().get_service()
 
 News = Namespace('News')
-@News.route("get_all")
+@News.route("/get_all")
 class List(Resource):
     def get(self):
         '''
@@ -24,10 +24,21 @@ class List(Resource):
                 return {"message": "Bad request"}, 400
         try:
             news = service.post_find(db='env_news', selector={
-                'shop_id': {
-                    '$eq': information['shop_id']
-                }
-            }, limit=information['limit'], skip=information['from']).get_result()
+                        "_id": {
+                            "$ne": "cfc"
+                        }
+            }, limit=int(information['limit']), skip=int(information['from'])).get_result()
+            query = AllDocsQuery(
+                limit=int(information['limit']),
+                skip=int(information['from'])
+
+            )
+            # news = service.post_all_docs_queries(db="env_news", queries=[query]).get_result()
+            # news = service.post_design_docs_queries(
+            #     db='env_news',
+            #     queries=[query]
+            # ).get_result()
+            print(news)
             if news['bookmark'] == 'nil':
                 return {'message': 'Data not found'}, 404
             send_data = {} # 가공된 데이터를 담을 dictionary
@@ -35,6 +46,7 @@ class List(Resource):
                 send_data[i['_id']] = i
             return send_data, 200
         except Exception as e:
+            print(e)
             return {"message": "Internal server error"}, 500
 @News.route("post")
 class Post(Resource):

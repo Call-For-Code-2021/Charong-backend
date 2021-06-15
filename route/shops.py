@@ -183,7 +183,31 @@ class Rating(Resource):
             return {'message': 'success'}
         except Exception:
             return {'message': "Internal Server Error"}
-@Shops.route('list')
+@Shops.route('/list')
 class ShopList(Resource):
     def get(self):
-        pass
+        information = {
+            'from': request.args.get('from'),
+            'limit': request.args.get('limit')
+        }
+        for i in information:
+            if information[i] is None:
+                return {"message": "Bad request"}, 400
+        try:
+            shops = service.post_find(db='shops', selector={
+                "_id": {
+                    "$ne": "cfc"
+                }
+            }, limit=int(information['limit']), skip=int(information['from'])).get_result()
+
+
+            print(shops)
+            if shops['bookmark'] == 'nil':
+                return {'message': 'Data not found'}, 404
+            send_data = {}  # 가공된 데이터를 담을 dictionary
+            for i in shops['docs']:
+                send_data[i['_id']] = i
+            return send_data, 200
+        except Exception as e:
+            print(e)
+            return {"message": "Internal server error"}, 500
