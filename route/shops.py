@@ -52,17 +52,17 @@ class Shop(Resource):
         }
         if information['id'] is None:
             return {'message': "Bad request"}, 400
-        response = service.post_find(db='shops', selector={
-            '_id': {
-                '$eq': f"cfc:{information['id']}"
-            }
-        }).get_result()
         try:
+            response = service.post_find(db='shops', selector={
+                '_id': {
+                    '$eq': f"cfc:{information['id']}"
+                }
+            }).get_result()
             rating = service.post_find(db='ratings', selector={
                 'shop_id': {
                     '$eq': information['shop_id']
-                }
-            }).get_result()
+                    }
+                }).get_result()
 
 
             if response['bookmark'] == 'nil':
@@ -183,3 +183,6 @@ class Rating(Resource):
             return {'message': 'success'}
         except Exception:
             return {'message': "Internal Server Error"}
+@Shops.route('list')
+class ShopList(Resource):
+    def get(self):

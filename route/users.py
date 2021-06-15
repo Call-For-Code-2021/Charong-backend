@@ -20,8 +20,8 @@ class User(Resource):
             return {"message": "Bad request"}, 400
         try:
             user = service.post_find(db='env_news', selector={
-                'id': {
-                    '$eq': id
+                '_id': {
+                    '$eq': f"cfc:{id}"
                 }
             }).get_result()
             if user['bookmark'] == 'nil':
