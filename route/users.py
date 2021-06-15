@@ -73,12 +73,14 @@ class Sign(Resource):
             if information[i] is None:
                 return {"message": "Bad request"}, 400
         try:
-            decoded = jwt.decode(information["jwt_token"], "qwer@1234", 'HS256')
-            decoded["jwt_token"] = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': decoded['id']}, "qwer@1234", 'HS256')
+            decoded = jwt.decode(information["jwt_token"], os.getenv("JWT_TOKEN"), 'HS256')
+            decoded["jwt_token"] = jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),'id': decoded['id']}, os.getenv('JWT_TOKEN'), 'HS256')
             return decoded, 200
-        except jwt.ExpiredSignatureError:
+        except jwt.ExpiredSignatureError as e:
+            print(e)
             return {"message": "Unathorized"}, 401
-        except jwt.InvalidTokenError:
+        except jwt.InvalidTokenError as e:
+            print(e)
             return {"message": "Unauthorized"}, 401
         except Exception as e:
             print(e)
