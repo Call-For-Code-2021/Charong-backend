@@ -19,7 +19,7 @@ class User(Resource):
         if id is None:
             return {"message": "Bad request"}, 400
         try:
-            user = service.post_find(db='env_news', selector={
+            user = service.post_find(db='users', selector={
                 '_id': {
                     '$eq': f"cfc:{id}"
                 }

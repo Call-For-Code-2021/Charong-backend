@@ -23,7 +23,7 @@ class List(Resource):
             if information[i] is None:
                 return {"message": "Bad request"}, 400
         try:
-            news = service.post_find(db='ratings', selector={
+            news = service.post_find(db='env_news', selector={
                 'shop_id': {
                     '$eq': information['shop_id']
                 }

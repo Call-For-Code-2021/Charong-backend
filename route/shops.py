@@ -186,3 +186,4 @@ class Rating(Resource):
 @Shops.route('list')
 class ShopList(Resource):
     def get(self):
+        pass
