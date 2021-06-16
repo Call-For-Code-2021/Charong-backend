@@ -17,9 +17,6 @@ class Shop(Resource):
             'address': request.json.get('address'),
             'shop_num': request.json.get('shop_num'),
             'user_id': request.json.get('user_id'),
-            'x': request.json.get('x'),
-            'y': request.json.get('y'),
-            'photo_id': request.json.get('photo_id'),
             'dish_type': request.json.get('dish_type')
         }
         for i in information:
@@ -31,9 +28,8 @@ class Shop(Resource):
                 shop=information['shop_name'],
                 shop_num=information['shop_num'],
                 user_id=information['user_id'],
-                x=information['x'],
-                y=information['y'],
-                photo_id=information['photo_id']
+                address=information['address'],
+                dish_type=information['dish_type']
             )
             service.post_document(db='shops', document=products_doc).get_result()
             # service.put_document(db='users', doc_id=f"cfc:{information['user_id']}", document=user_doc).get_result()
